@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamHub Pro</title>
+    
+    <meta name="theme-color" content="#9147ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        :root { --bg: #0e0e10; --card: #1f1f23; --accent: #9147ff; --text: #efeff1; }
+        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        header { height: 50px; background: #18181b; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid #303032; justify-content: space-between; }
+        .logo { font-weight: bold; color: var(--accent); }
+        .layout { display: grid; grid-template-columns: 250px 1fr 300px; flex-grow: 1; }
+        .sidebar { background: #18181b; padding: 10px; border-right: 1px solid #303032; }
+        .player { background: #000; display: flex; flex-direction: column; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .chat { background: #18181b; border-left: 1px solid #303032; display: flex; flex-direction: column; }
+        .chat-messages { flex-grow: 1; padding: 10px; font-size: 0.9rem; overflow-y: auto; }
+        .chat-input { padding: 10px; border-top: 1px solid #303032; }
+        .chat-input input { width: 100%; padding: 8px; background: #000; border: 1px solid #444; color: #fff; border-radius: 4px; }
+        .channel-card { padding: 10px; cursor: pointer; border-radius: 5px; margin-bottom: 5px; transition: 0.2s; }
+        .channel-card:hover { background: var(--card); }
+        .active { background: var(--card); border-left: 3px solid var(--accent); }
+        @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .sidebar, .chat { display: none; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">STREAMHUB PRO</div>
+        <button id="installBtn" style="display:none; background:var(--accent); color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Instalar App</button>
+    </header>
+
+    <main class="layout">
+        <aside class="sidebar">
+            <div class="channel-card active" onclick="change('UC7_gcs09iThXybpVgjHZ_7g', 'Câmara ao Vivo')">Câmara Federal</div>
+            <div class="channel-card" onclick="change('UCst_A06vEIn_zayC7uVnNow', 'TV Brasil')">TV Brasil</div>
+        </aside>
+
+        <section class="player">
+            <div class="video-container">
+                <iframe id="main-v" src="https://www.youtube.com/embed/live_stream?channel=UC7_gcs09iThXybpVgjHZ_7g" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <div style="padding: 20px;">
+                <h1 id="t">Câmara ao Vivo</h1>
+                <p>Status: Transmissão em tempo real</p>
+            </div>
+        </section>
+
+        <aside class="chat">
+            <div style="padding:10px; font-weight:bold; border-bottom:1px solid #333;">CHAT AO VIVO</div>
+            <div class="chat-messages" id="chat-m">
+                <div><span style="color:var(--accent)">Sistema:</span> Bem-vindo!</div>
+            </div>
+            <div class="chat-input">
+                <input type="text" placeholder="Diga algo..." id="in">
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        function change(id, title) {
+            document.getElementById('main-v').src = `https://www.youtube.com/embed/live_stream?channel=${id}&autoplay=1`;
+            document.getElementById('t').innerText = title;
+        }
+
+        document.getElementById('in').addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') {
+                document.getElementById('chat-m').innerHTML += `<div><span style="color:#adadb8">Você:</span> ${this.value}</div>`;
+                this.value = '';
+            }
+        });
+
+        // Lógica de Instalação PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', () => {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choice) => {
+                if (choice.outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
